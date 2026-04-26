@@ -1,13 +1,11 @@
 //
 // Created by conduto on 4/26/26.
 //
-
-#include "../../include/Menu.h"
-
+#include "ui/Menu.h"
 #include <iostream>
 
 using std::cout;
 
-void showMenu() {
+void Menu::showMenu() {
     cout<<"olá"<<"\n";
 }

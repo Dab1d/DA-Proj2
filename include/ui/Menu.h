@@ -3,7 +3,13 @@
 //
 #ifndef DA_PROJ2_MENU_H
 #define DA_PROJ2_MENU_H
-
-void showMenu();
+class Menu {
+public:
+    /**
+     * @brief Show the Main Menu
+     * @param Time Complexity O(1);
+     */
+    static void showMenu();
+};
 
 #endif //DA_PROJ2_MENU_H

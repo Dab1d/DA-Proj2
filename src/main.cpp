@@ -1,6 +1,6 @@
-#include <iostream>
+
 
 int main(int argc,char*argv[]){
-	std::cout<<"olá"<<"\n";
+	Menu::showMenu();
 	return 0;
 }

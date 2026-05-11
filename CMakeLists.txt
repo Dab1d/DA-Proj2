@@ -8,6 +8,7 @@ add_executable(main
         src/ui/BatchMode.cpp
         src/ui/InteractiveMode.cpp
         src/parser/Parser.cpp
+        src/parser/parserTools.cpp
 )
 
-target_include_directories(main PRIVATE include structures)
+target_include_directories(main PRIVATE include include/structures)

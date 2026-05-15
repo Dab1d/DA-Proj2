@@ -62,10 +62,11 @@ public:
      */
     void writeOutput(const std::string& filename) const;
 
-    /**
-     * @brief Prints the allocation result to stdout (for interactive mode).
-     */
-    void printResult() const;
+    size_t getRangeCount()               const { return liveRanges.size(); }
+    size_t getWebCount()                 const { return webs.size(); }
+    int    getNumRegisters()             const { return config.numRegisters; }
+    bool   isFeasible()                  const { return result.feasible; }
+    const AllocationResult& getResult()  const { return result; }
 };
 
 #endif // DA_PROJ2_REGISTERALLOCATORCONTROLLER_H

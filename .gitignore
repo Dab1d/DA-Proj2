@@ -39,6 +39,7 @@
 
 # debug information files
 *.dwo
-/latex
-/html
+latex/
+html/
 .idea/
+.vscode/

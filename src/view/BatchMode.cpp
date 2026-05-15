@@ -1,4 +1,4 @@
-#include "ui/BatchMode.h"
+#include "view/BatchMode.h"
 #include "parser/Parser.h"
 #include <iostream>
 #include <string>

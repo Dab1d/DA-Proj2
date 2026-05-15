@@ -9,6 +9,10 @@ add_executable(main
         src/view/InteractiveMode.cpp
         src/parser/Parser.cpp
         src/parser/parserTools.cpp
+        src/algorithms/WebBuilder.cpp
+        src/algorithms/GraphColoring.cpp
+        src/controllers/LoadRangesController.cpp
+        src/controllers/RegisterAllocaterController.cpp
 )
 
-target_include_directories(main PRIVATE include include/structures)
+target_include_directories(main PRIVATE include include/structures include/data_structures)

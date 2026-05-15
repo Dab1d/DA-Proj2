@@ -42,7 +42,7 @@ void InteractiveMode::run() {
                 try {
                     if (!gLoader.isReady())
                         throw std::runtime_error("Load ranges and config first (options 1 and 2)");
-                    gAlloc.build(gLoader.liveRanges, gLoader.config);
+                    gAlloc.build(gLoader.getLiveRanges(), gLoader.getConfig());
                     cout << "Built " << gAlloc.getWebCount() << " web(s) and interference graph.\n";
                 } catch (const std::exception& e) {
                     cout << "Error: " << e.what() << "\n";

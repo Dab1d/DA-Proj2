@@ -36,6 +36,8 @@ public:
 
     size_t getWebCount()                const { return webs.size(); }
     int    getNumRegisters()             const { return config.numRegisters; }
+    bool   isLoaded()                    const { return loaded; }
+    bool   isAllocated()                 const { return allocated; }
     bool   isFeasible()                  const { return result.feasible; }
     const AllocationResult& getResult()  const { return result; }
 };

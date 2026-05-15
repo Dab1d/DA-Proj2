@@ -15,9 +15,11 @@ public:
     void loadRangesFromFile(const std::string& filename);
     void loadConfigFromFile(const std::string& filename);
 
-    size_t getRangeCount()   const { return liveRanges.size(); }
-    int    getNumRegisters() const { return config.numRegisters; }
-    bool   isReady()         const { return rangesReady && configReady; }
+    size_t getRangeCount()                        const { return liveRanges.size(); }
+    int    getNumRegisters()                      const { return config.numRegisters; }
+    bool   isReady()                              const { return rangesReady && configReady; }
+    const std::vector<LiveRange>& getLiveRanges() const { return liveRanges; }
+    const RegisterConfig&         getConfig()     const { return config; }
 };
 
 #endif // DA_PROJ2_LOADRANGESCONTROLLER_H

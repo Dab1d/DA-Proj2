@@ -1,6 +1,7 @@
 #include "view/InteractiveMode.h"
 #include "view/Menu.h"
 #include "view/ResultView.h"
+#include "controllers/LoadRangesController.h"
 #include "controllers/RegisterAllocatorController.h"
 
 #include <iostream>
@@ -9,7 +10,8 @@
 using std::cout;
 using std::string;
 
-static RegisterAllocatorController gCtrl;
+static LoadRangesController        gLoader;
+static RegisterAllocatorController gAlloc;
 
 void InteractiveMode::run() {
     while (true) {
@@ -20,8 +22,8 @@ void InteractiveMode::run() {
         switch (choice) {
             case 1:
                 try {
-                    gCtrl.loadRangesFromFile(promptFilename("select the number of the file if it are in this format:datasets/basic/rangesX.txt, otherwise write the full path of the file", "datasets/basic/ranges"));
-                    cout << "Loaded " << gCtrl.getRangeCount() << " live range(s).\n";
+                    gLoader.loadRangesFromFile(promptFilename("select the number of the file if it are in this format:datasets/basic/rangesX.txt, otherwise write the full path of the file", "datasets/basic/ranges"));
+                    cout << "Loaded " << gLoader.getRangeCount() << " live range(s).\n";
                 } catch (const std::exception& e) {
                     cout << "Error: " << e.what() << "\n";
                 }
@@ -29,8 +31,8 @@ void InteractiveMode::run() {
 
             case 2:
                 try {
-                    gCtrl.loadConfigFromFile(promptFilename("select the number of the file if it are in this format:datasets/basic/registersX.txt, otherwise write the full path of the file", "datasets/basic/registers"));
-                    cout << "Config loaded: " << gCtrl.getNumRegisters() << " register(s).\n";
+                    gLoader.loadConfigFromFile(promptFilename("select the number of the file if it are in this format:datasets/basic/registersX.txt, otherwise write the full path of the file", "datasets/basic/registers"));
+                    cout << "Config loaded: " << gLoader.getNumRegisters() << " register(s).\n";
                 } catch (const std::exception& e) {
                     cout << "Error: " << e.what() << "\n";
                 }
@@ -38,8 +40,10 @@ void InteractiveMode::run() {
 
             case 3:
                 try {
-                    gCtrl.build();
-                    cout << "Built " << gCtrl.getWebCount() << " web(s) and interference graph.\n";
+                    if (!gLoader.isReady())
+                        throw std::runtime_error("Load ranges and config first (options 1 and 2)");
+                    gAlloc.build(gLoader.liveRanges, gLoader.config);
+                    cout << "Built " << gAlloc.getWebCount() << " web(s) and interference graph.\n";
                 } catch (const std::exception& e) {
                     cout << "Error: " << e.what() << "\n";
                 }
@@ -47,8 +51,8 @@ void InteractiveMode::run() {
 
             case 4:
                 try {
-                    gCtrl.run();
-                    cout << (gCtrl.isFeasible()
+                    gAlloc.run();
+                    cout << (gAlloc.isFeasible()
                         ? "Allocation successful.\n"
                         : "Allocation INFEASIBLE.\n");
                 } catch (const std::exception& e) {
@@ -57,13 +61,13 @@ void InteractiveMode::run() {
                 break;
 
             case 5:
-                printAllocationResult(gCtrl);
+                printAllocationResult(gAlloc);
                 break;
 
             case 6: {
                 string outFile = promptFilename("Output file");
                 try {
-                    gCtrl.writeOutput(outFile);
+                    gAlloc.writeOutput(outFile);
                     cout << "Result written to " << outFile << "\n";
                 } catch (const std::exception& e) {
                     cout << "Error: " << e.what() << "\n";

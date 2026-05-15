@@ -1,18 +1,15 @@
 #include "controllers/RegisterAllocatorController.h"
 #include "algorithms/WebBuilder.h"
 #include "algorithms/GraphColoring.h"
-#include "parser/Parser.h"
 
 #include <iostream>
 #include <fstream>
-#include <sstream>
 #include <algorithm>
 #include <stdexcept>
 #include <map>
 
 using std::string;
 using std::vector;
-using std::cout;
 using std::cerr;
 
 // ---------------------------------------------------------------------------
@@ -36,35 +33,14 @@ static string formatPoints(const vector<ProgramPoint>& pts) {
 }
 
 // ---------------------------------------------------------------------------
-// loadRangesFromFile / loadConfigFromFile / build
+// build
 // ---------------------------------------------------------------------------
 
-void RegisterAllocatorController::loadRangesFromFile(const string& filename) {
-    liveRanges = Parser::parseLiveRanges(filename);
-    rangesReady = true;
-}
-
-void RegisterAllocatorController::loadConfigFromFile(const string& filename) {
-    config = Parser::parseRegisterConfig(filename);
-    configReady = true;
-}
-
-void RegisterAllocatorController::build() {
-    if (!rangesReady || !configReady)
-        throw std::runtime_error("Load ranges and config first (options 1 and 2)");
-    load(liveRanges, config);
-}
-
-// ---------------------------------------------------------------------------
-// load
-// ---------------------------------------------------------------------------
-
-void RegisterAllocatorController::load(const vector<LiveRange>& ranges,
-                                       const RegisterConfig& cfg) {
+void RegisterAllocatorController::build(const vector<LiveRange>& ranges,
+                                        const RegisterConfig& cfg) {
     config = cfg;
     webs.clear();
     allocated = false;
-
     interferenceGraph = Graph<int>();
 
     webs = WebBuilder::buildWebs(ranges);
@@ -78,9 +54,9 @@ void RegisterAllocatorController::load(const vector<LiveRange>& ranges,
 // ---------------------------------------------------------------------------
 
 void RegisterAllocatorController::run() {
-    if (!loaded) throw std::runtime_error("Call load() before run()");
+    if (!loaded) throw std::runtime_error("Call build() before run()");
 
-    int K = config.numRegisters;
+    int K     = config.numRegisters;
     int param = config.algorithmParam;
 
     switch (config.algorithm) {
@@ -127,29 +103,23 @@ void RegisterAllocatorController::writeOutput(const string& filename) const {
     out << "registers: " << result.registersUsed << "\n";
 
     if (result.feasible) {
-        // Group by register; reg=-1 means spilled to memory (allowed by spilling algorithm)
         std::map<int, vector<int>> regToWebs;
         for (const auto& [wid, reg] : result.webToRegister)
             regToWebs[reg].push_back(wid);
 
-        // Output memory-spilled webs first, then register-allocated ones
         if (regToWebs.count(-1)) {
             auto& spilled = regToWebs[-1];
             std::sort(spilled.begin(), spilled.end());
-            for (int wid : spilled)
-                out << "M: web" << wid << "\n";
+            for (int wid : spilled) out << "M: web" << wid << "\n";
         }
         for (auto& [reg, wids] : regToWebs) {
             if (reg < 0) continue;
             std::sort(wids.begin(), wids.end());
-            for (int wid : wids)
-                out << "r" << reg << ": web" << wid << "\n";
+            for (int wid : wids) out << "r" << reg << ": web" << wid << "\n";
         }
     } else {
-        for (const auto& w : ws)
-            out << "M: web" << w.id << "\n";
+        for (const auto& w : ws) out << "M: web" << w.id << "\n";
     }
 
     out.close();
 }
-

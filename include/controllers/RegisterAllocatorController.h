@@ -15,12 +15,31 @@
  */
 class RegisterAllocatorController {
 public:
-    std::vector<Web>  webs;
-    Graph<int>        interferenceGraph;
-    RegisterConfig    config;
-    AllocationResult  result;
-    bool              loaded = false;
-    bool              allocated = false;
+    std::vector<LiveRange> liveRanges;
+    std::vector<Web>       webs;
+    Graph<int>             interferenceGraph;
+    RegisterConfig         config;
+    AllocationResult       result;
+    bool                   rangesReady = false;
+    bool                   configReady = false;
+    bool                   loaded      = false;
+    bool                   allocated   = false;
+
+    /**
+     * @brief Parses live ranges from a file and stores them internally.
+     */
+    void loadRangesFromFile(const std::string& filename);
+
+    /**
+     * @brief Parses register config from a file and stores it internally.
+     */
+    void loadConfigFromFile(const std::string& filename);
+
+    /**
+     * @brief Builds webs and the interference graph from the stored live ranges and config.
+     * @note Call loadRangesFromFile() and loadConfigFromFile() first.
+     */
+    void build();
 
     /**
      * @brief Loads live ranges and register config, then builds webs and the interference graph.

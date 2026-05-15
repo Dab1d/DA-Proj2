@@ -1,4 +1,39 @@
 # Programming Project II — Compiler Register Allocation
+## Done ✅
+- Parser (ranges + registers files)
+- WebBuilder (union-find merge + interference graph)
+- T2.1 basicAllocation (4.0 pts)
+- Batch mode + Interactive mode (1.0 pts)
+- MVC refactor: LoadRangesController, RegisterAllocatorController, ResultView, PathUtils
+
+## Missing ❌
+
+- T2.2 spillingAllocation (3.0 pts)
+- T2.3 splittingAllocation (3.0 pts)
+- T2.4 freeAllocation / DSatur (4.0 pts)
+
+### 1. Doxygen docs (2.0 pts) — highest priority
+Every public function needs `@brief`, `@param`, `@return`, `@note Time complexity: O(...)`.
+Files that need it most:
+- `include/algorithms/WebBuilder.h`
+- `include/algorithms/GraphColoring.h`
+- `include/controllers/LoadRangesController.h`
+- `include/controllers/RegisterAllocatorController.h`
+- `include/parser/Parser.h`
+
+Then generate: `doxygen -g Doxyfile && doxygen Doxyfile`
+
+### 2. Build verification
+Project hasn't been compiled since MVC refactor. Need to confirm it builds cleanly.
+
+### 3. End-to-end test with all datasets
+Run batch mode on all datasets and verify output matches expected format.
+
+### 4. PR parser → main
+`gh auth login` then `gh pr create --base main --head parser`
+
+### 5. Demo (2.0 pts)
+10-min presentation — not code, but needs to be prepared.
 
 ## Quick Summary
 

@@ -12,7 +12,7 @@ void BatchMode::run(const string& ranges, const string& registers, const string&
         auto config     = Parser::parseRegisterConfig(registers);
 
         RegisterAllocatorController ctrl;
-        ctrl.load(liveRanges, config);
+        ctrl.build(liveRanges, config);
         ctrl.run();
         ctrl.writeOutput(allocation);
 

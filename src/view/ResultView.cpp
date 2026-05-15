@@ -39,7 +39,7 @@ string promptFilename(const string& label, const char* preferredSub) {
 }
 
 void printAllocationResult(const RegisterAllocatorController& ctrl) {
-    if (!ctrl.allocated) { cout << "No allocation has been run yet.\n"; return; }
+    if (!ctrl.isAllocated()) { cout << "No allocation has been run yet.\n"; return; }
 
     const AllocationResult& res = ctrl.getResult();
     cout << "\n=== Allocation Result ===\n";

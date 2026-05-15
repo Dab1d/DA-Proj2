@@ -1,28 +1,5 @@
 # Programming Project II — Compiler Register Allocation
 
-
-## TODO:
-Estruturas: adicionar Web e AllocationResult a Structures.h
-
-WebBuilder: implementar buildWebs e buildInterferenceGraph
-
-GraphColoring: T2.1 basicAllocation
-
-RegisterAllocatorController: load, run, writeOutput, printResult
-
-BatchMode: ligar ao controller
-
-InteractiveMode: substituir TODOs por chamadas reais
-
-CMakeLists.txt: adicionar novos .cpp
-
-GraphColoring: T2.2 spillingAllocation
-
-GraphColoring: T2.3 splittingAllocation
-
-GraphColoring: T2.4 freeAllocation (DSatur)
-
-Compilar e testar com datasets
 ## Quick Summary
 
 You're building a **C++ tool that allocates registers to variables** in a compiler back-end, using **graph coloring** (an NP-complete problem tackled with heuristics).

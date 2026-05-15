@@ -1,8 +1,8 @@
 #include <iostream>
 
-#include "ui/BatchMode.h"
-#include "ui/InteractiveMode.h"
-#include "ui/Menu.h"
+#include "view/BatchMode.h"
+#include "view/InteractiveMode.h"
+#include "view/Menu.h"
 using std::cout;
 
 int main(int argc, char *argv[]) {

@@ -3,8 +3,8 @@
 //
 #include <iostream>
 
-#include "../../include/ui/InteractiveMode.h"
-#include "ui/Menu.h"
+#include "../../include/view/InteractiveMode.h"
+#include "view/Menu.h"
 
 using std::cout;
 

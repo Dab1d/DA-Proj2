@@ -4,9 +4,9 @@ set(CMAKE_CXX_STANDARD 17)
 
 add_executable(main
         src/main.cpp
-        src/ui/Menu.cpp
-        src/ui/BatchMode.cpp
-        src/ui/InteractiveMode.cpp
+        src/view/Menu.cpp
+        src/view/BatchMode.cpp
+        src/view/InteractiveMode.cpp
         src/parser/Parser.cpp
         src/parser/parserTools.cpp
 )

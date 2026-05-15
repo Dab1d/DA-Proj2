@@ -151,8 +151,23 @@ AllocationResult GraphColoring::spillingAllocation(const Graph<int>& graph,
 
     for (int attempt = 0; attempt <= maxSpills; attempt++) {
         auto reg = greedyColor(graph, webs, K, forcedSpills);
-        auto res = makeResult(reg, webs, K);
-        if (res.feasible) return res;
+
+        // Feasible iff no unforced spills and no color overflow
+        bool ok = true;
+        int maxColor = -1;
+        for (auto& [id, c] : reg) {
+            if (c < 0 && !forcedSpills.count(id)) { ok = false; break; }
+            if (c >= 0 && c >= K) { ok = false; break; }
+            if (c >= 0) maxColor = std::max(maxColor, c);
+        }
+        if (ok) {
+            AllocationResult res;
+            res.feasible = true;
+            res.registersUsed = maxColor + 1;
+            res.webs = webs;
+            res.webToRegister = reg;
+            return res;
+        }
 
         if (attempt == maxSpills) break;
 
@@ -166,7 +181,7 @@ AllocationResult GraphColoring::spillingAllocation(const Graph<int>& graph,
         forcedSpills.insert(spill);
     }
 
-    // Infeasible within spill budget
+    // Exhausted spill budget without achieving K-colorability: spill everything
     AllocationResult res;
     res.feasible = false;
     res.registersUsed = 0;

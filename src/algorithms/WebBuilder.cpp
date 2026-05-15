@@ -6,18 +6,18 @@ using std::vector;
 using std::set;
 
 // Union-Find helpers (index-based, for merging ranges within a variable)
-static int ufFind(vector<int>& parent, int x) {
-    while (parent[x] != x) {
-        parent[x] = parent[parent[x]];
-        x = parent[x];
+static int ufFind(vector<int>& uf, int x) {
+    while (uf[x] != x) {
+        uf[x] = uf[uf[x]];
+        x = uf[x];
     }
     return x;
 }
 
-static void ufUnion(vector<int>& parent, int a, int b) {
-    a = ufFind(parent, a);
-    b = ufFind(parent, b);
-    if (a != b) parent[b] = a;
+static void ufUnion(vector<int>& uf, int a, int b) {
+    a = ufFind(uf, a);
+    b = ufFind(uf, b);
+    if (a != b) uf[b] = a;
 }
 
 // Build the liveLines set for a live range (all line numbers covered)
@@ -64,8 +64,8 @@ vector<Web> WebBuilder::buildWebs(const vector<LiveRange>& ranges) {
 
     for (auto& [varName, indices] : byVar) {
         int n = indices.size();
-        vector<int> parent(n);
-        std::iota(parent.begin(), parent.end(), 0);
+        vector<int> uf(n);
+        std::iota(uf.begin(), uf.end(), 0);
 
         // Pre-compute line sets
         vector<set<int>> lineSets(n);
@@ -78,10 +78,10 @@ vector<Web> WebBuilder::buildWebs(const vector<LiveRange>& ranges) {
             changed = false;
             for (int i = 0; i < n; i++) {
                 for (int j = i + 1; j < n; j++) {
-                    if (ufFind(parent, i) == ufFind(parent, j)) continue;
+                    if (ufFind(uf, i) == ufFind(uf, j)) continue;
                     if (shouldMerge(ranges[indices[i]], lineSets[i],
                                     ranges[indices[j]], lineSets[j])) {
-                        ufUnion(parent, i, j);
+                        ufUnion(uf, i, j);
                         changed = true;
                     }
                 }
@@ -91,7 +91,7 @@ vector<Web> WebBuilder::buildWebs(const vector<LiveRange>& ranges) {
         // Collect roots → web groups
         std::map<int, vector<int>> groups;
         for (int i = 0; i < n; i++)
-            groups[ufFind(parent, i)].push_back(i);
+            groups[ufFind(uf, i)].push_back(i);
 
         for (auto& [root, members] : groups) {
             // Each original live range entry becomes one Web entry (same id = same web)

@@ -1,6 +1,7 @@
 #include "controllers/RegisterAllocatorController.h"
 #include "algorithms/WebBuilder.h"
 #include "algorithms/GraphColoring.h"
+#include "parser/Parser.h"
 
 #include <iostream>
 #include <fstream>
@@ -32,6 +33,26 @@ static string formatPoints(const vector<ProgramPoint>& pts) {
         s += formatPoint(pts[i]);
     }
     return s;
+}
+
+// ---------------------------------------------------------------------------
+// loadRangesFromFile / loadConfigFromFile / build
+// ---------------------------------------------------------------------------
+
+void RegisterAllocatorController::loadRangesFromFile(const string& filename) {
+    liveRanges = Parser::parseLiveRanges(filename);
+    rangesReady = true;
+}
+
+void RegisterAllocatorController::loadConfigFromFile(const string& filename) {
+    config = Parser::parseRegisterConfig(filename);
+    configReady = true;
+}
+
+void RegisterAllocatorController::build() {
+    if (!rangesReady || !configReady)
+        throw std::runtime_error("Load ranges and config first (options 1 and 2)");
+    load(liveRanges, config);
 }
 
 // ---------------------------------------------------------------------------
@@ -106,11 +127,20 @@ void RegisterAllocatorController::writeOutput(const string& filename) const {
     out << "registers: " << result.registersUsed << "\n";
 
     if (result.feasible) {
+        // Group by register; reg=-1 means spilled to memory (allowed by spilling algorithm)
         std::map<int, vector<int>> regToWebs;
         for (const auto& [wid, reg] : result.webToRegister)
             regToWebs[reg].push_back(wid);
 
+        // Output memory-spilled webs first, then register-allocated ones
+        if (regToWebs.count(-1)) {
+            auto& spilled = regToWebs[-1];
+            std::sort(spilled.begin(), spilled.end());
+            for (int wid : spilled)
+                out << "M: web" << wid << "\n";
+        }
         for (auto& [reg, wids] : regToWebs) {
+            if (reg < 0) continue;
             std::sort(wids.begin(), wids.end());
             for (int wid : wids)
                 out << "r" << reg << ": web" << wid << "\n";
@@ -123,34 +153,3 @@ void RegisterAllocatorController::writeOutput(const string& filename) const {
     out.close();
 }
 
-// ---------------------------------------------------------------------------
-// printResult
-// ---------------------------------------------------------------------------
-
-void RegisterAllocatorController::printResult() const {
-    if (!allocated) { cout << "No allocation has been run yet.\n"; return; }
-
-    const vector<Web>& ws = result.webs;
-
-    cout << "\n=== Allocation Result ===\n";
-    cout << "webs: " << ws.size() << "\n";
-    for (const auto& w : ws)
-        cout << "  web" << w.id << " [" << w.varName << "]: " << formatPoints(w.points) << "\n";
-
-    if (result.feasible) {
-        cout << "registers used: " << result.registersUsed << "\n";
-        std::map<int, vector<int>> regToWebs;
-        for (const auto& [wid, reg] : result.webToRegister)
-            regToWebs[reg].push_back(wid);
-        for (auto& [reg, wids] : regToWebs) {
-            std::sort(wids.begin(), wids.end());
-            for (int wid : wids)
-                cout << "  r" << reg << " -> web" << wid << "\n";
-        }
-    } else {
-        cout << "Allocation INFEASIBLE with " << config.numRegisters << " registers.\n";
-        for (const auto& w : ws)
-            cout << "  M -> web" << w.id << "\n";
-    }
-    cout << "=========================\n";
-}

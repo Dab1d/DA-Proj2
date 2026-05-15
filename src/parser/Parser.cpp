@@ -4,7 +4,6 @@
 
 #include "parser/Parser.h"
 #include "parser/parserTools.h"
-#include "../structures/Structures.h"
 
 #include <fstream>
 #include <sstream>

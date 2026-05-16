@@ -212,7 +212,7 @@ The main habit: put a `@brief` + `@param` + `@return` + `@note` (complexity) blo
 
 [T1.2: 1.0 point] Read and Parse the Input Data - FEITO (Os dados crus lidos pelo parser foram agregados pelo WebBuilder e convertidos na estrutura de grafos lecionada nas aulas teóricas e práticas (TP). Especificamente, criámos um Grafo de Interferência instanciado como Graph<int>, implementado internamente por Lista de Adjacências , onde cada vértice representa o ID único de uma Web e as arestas representam conflitos temporais de liveness. Para suportar o grafo e permitir a posterior tradução e escrita do output, os metadados das variáveis e as suas linhas de código associadas ficaram mapeados num std::vector<Web>) -> o que o gemini me disse sobre que estruturas usamos. Basicamente, primeiro no paser.cpp os dados são convertidos em 3 estruturas e depois nos controllers são organizadas para se enquadradarem nas estruturas das aulas 
 
-[T1.3: 2.0 points] Documentation and Time Complexity Analysis - acho que os headers criados até agora têm tido isso. Continuar a fazer isso 
+[T1.3: 2.0 points] Documentation and Time Complexity Analysis - NEM TODOS TÊM A DOCMENTAÇÃO. Continuar a fazer isso 
 
 [T2.1: 4.0 points] Basic Register Allocation - FEITO (mas por testar; eu testei um mas não deu mas talvez não tenha escolhido os ficheiros certos)  
 

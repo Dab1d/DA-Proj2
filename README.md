@@ -5,9 +5,6 @@
 - T2.1 basicAllocation (4.0 pts)
 - Batch mode + Interactive mode (1.0 pts)
 - MVC refactor: LoadRangesController, RegisterAllocatorController, ResultView, PathUtils
-
-## Missing ❌
-
 - T2.2 spillingAllocation (3.0 pts)
 - T2.3 splittingAllocation (3.0 pts)
 - T2.4 freeAllocation / DSatur (4.0 pts)
@@ -216,10 +213,10 @@ The main habit: put a `@brief` + `@param` + `@return` + `@note` (complexity) blo
 
 [T2.1: 4.0 points] Basic Register Allocation - FEITO (mas por testar; eu testei um mas não deu mas talvez não tenha escolhido os ficheiros certos)  
 
-[T2.2: 3.0 points] Register Allocation with Web Spilling - POR FAZER!!!!!!!
+[T2.2: 3.0 points] Register Allocation with Web Spilling - FEITO (falta testar)
 
-[T2.3: 3.0 points] Register Allocation with Web Splitting - POR FAZER!!!!!!! 
+[T2.3: 3.0 points] Register Allocation with Web Splitting - FEITO (falta testar)
 
-[T2.4: 4.0 points] Register Allocation of Your Own - POR FAZER E WHAT THE HELLY 
+[T2.4: 4.0 points] Register Allocation of Your Own - FEITO (usamos o Priority-Aware Spill-Safe; falta testar)
 
 [T3.1: 2.0 points] Demo & Presentatiosn - POR FAZER! e também é preciso entregar domingo

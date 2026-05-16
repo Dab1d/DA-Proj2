@@ -157,18 +157,19 @@ public:
      * @brief Custom register allocation using the DSatur heuristic.
      *
      * ### Algorithm (DSatur – Brélaz 1979)
-     * 1. Maintain a *saturation* counter for every uncoloured vertex: the
-     *    number of *distinct* colours already used by its neighbours.
-     * 2. Repeatedly colour the uncoloured vertex with the highest saturation.
-     *    Ties are broken by choosing the vertex with the highest total degree.
-     * 3. Assign the smallest colour not used by any neighbour.
-     * 4. Update the saturation counters of all uncoloured neighbours.
+     *    1. Sort webs by degree descending (hardest to colour first).
+     *    2. For each web, assign the smallest colour not used by neighbours.
+     *    3. If that colour would exceed K, attempt a *local recolour*: scan
+     *       already-coloured neighbours and check whether any of them can be
+     *       moved to a different colour, freeing a slot for the current web.
+     *    4. Only if local recolouring also fails, spill the current web (reg = -1).
      *
-     * No spilling is performed; if at least one web requires a colour ≥ K the
-     * allocation is reported as infeasible and every web receives register -1.
+     *    This avoids the eagerly-spill behaviour of plain greedy and the full
+     *      saturation scan of DSatur, instead investing one extra O(K) probe per
+     *       conflict to rescue colours before giving up.
      *
-     * DSatur is optimal on perfect graphs and empirically produces fewer
-     * colours than plain greedy on many interference graphs.
+     *      Time complexity: O(W^2 * K) in the worst case, O(W^2) on typical inputs
+     * where conflicts are sparse.
      *
      * @param graph Interference graph.
      * @param webs  All webs.

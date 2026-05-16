@@ -271,73 +271,160 @@ AllocationResult GraphColoring::splittingAllocation(const Graph<int>& graph,
 }
 
 // ---------------------------------------------------------------------------
-// T2.4 — DSatur (free allocation)
+// T2.4 – PASS (Priority-Aware Spill-Safe) allocation
+//
+// Strategy:
+//   1. Sort webs by degree descending (hardest to colour first).
+//   2. For each web, assign the smallest colour not used by neighbours.
+//   3. If that colour would exceed K, attempt a *local recolour*: scan
+//      already-coloured neighbours and check whether any of them can be
+//      moved to a different colour, freeing a slot for the current web.
+//   4. Only if local recolouring also fails, spill the current web (reg = -1).
+//
+// This avoids the eagerly-spill behaviour of plain greedy and the full
+// saturation scan of DSatur, instead investing one extra O(K) probe per
+// conflict to rescue colours before giving up.
+//
+// Time complexity: O(W^2 * K) in the worst case, O(W^2) on typical inputs
+// where conflicts are sparse.
 // ---------------------------------------------------------------------------
 
 AllocationResult GraphColoring::freeAllocation(const Graph<int>& graph,
                                                 const vector<Web>& webs, int K) {
-    map<int, int> webToReg;
-    map<int, set<int>> neighborColors; // web id → set of colors used by neighbors
-    map<int, int> degree;
 
+    // ------------------------------------------------------------------
+    // 1. Build degree table and sort webs by degree descending
+    // ------------------------------------------------------------------
+    map<int, int> degree;
     for (const auto& w : webs) {
-        webToReg[w.id] = -2; // uncolored sentinel
-        neighborColors[w.id] = {};
         auto* v = graph.findVertex(w.id);
         degree[w.id] = v ? (int)v->getAdj().size() : 0;
     }
 
-    int total = webs.size();
-    for (int iter = 0; iter < total; iter++) {
-        // Pick uncolored node with max saturation, break ties by degree
-        int best = -1, bestSat = -1, bestDeg = -1;
-        for (const auto& w : webs) {
-            if (webToReg[w.id] != -2) continue;
-            int sat = (int)neighborColors[w.id].size();
-            int deg = degree[w.id];
-            if (sat > bestSat || (sat == bestSat && deg > bestDeg)) {
-                best = w.id; bestSat = sat; bestDeg = deg;
-            }
-        }
-        if (best < 0) break;
+    vector<int> order;
+    order.reserve(webs.size());
+    for (const auto& w : webs) order.push_back(w.id);
 
-        // Assign smallest color not used by neighbors
-        int color = 0;
-        while (neighborColors[best].count(color)) color++;
+    std::sort(order.begin(), order.end(), [&](int a, int b) {
+        return degree[a] > degree[b];   // descending degree
+    });
 
-        webToReg[best] = color;
+    // ------------------------------------------------------------------
+    // 2. Greedy colouring with local-recolour fallback
+    // ------------------------------------------------------------------
+    map<int, int> reg;   // web id -> colour (-1 = spilled, -2 = uncoloured)
+    for (const auto& w : webs) reg[w.id] = -2;
 
-        // Update neighbor saturation
-        auto* v = graph.findVertex(best);
+    for (int id : order) {
+        auto* v = graph.findVertex(id);
+
+        // Collect colours used by already-coloured neighbours
+        set<int> usedByNeighbours;
+        vector<int> colouredNeighbours;
         if (v) {
             for (const auto& e : v->getAdj()) {
                 int nb = e.getDest()->getInfo();
-                if (webToReg[nb] == -2)
-                    neighborColors[nb].insert(color);
+                if (reg[nb] >= 0) {
+                    usedByNeighbours.insert(reg[nb]);
+                    colouredNeighbours.push_back(nb);
+                }
             }
+        }
+
+        // Smallest colour not blocked by any neighbour
+        int color = 0;
+        while (usedByNeighbours.count(color)) color++;
+
+        if (color < K) {
+            // Happy path: fits within K registers
+            reg[id] = color;
+            continue;
+        }
+
+        // ------------------------------------------------------------------
+        // 3. Local recolour attempt
+        //
+        // For each already-coloured neighbour nb (colour = C):
+        //   – collect colours used by nb's OWN neighbours (excluding `id`)
+        //   – if nb can be moved to any colour c' in [0,K) not in that set,
+        //     then colour C becomes free for `id`
+        //   – accept the first such rescue found
+        // ------------------------------------------------------------------
+        bool rescued = false;
+
+        for (int nb : colouredNeighbours) {
+            if (rescued) break;
+
+            int nbColor = reg[nb];
+            auto* nbv   = graph.findVertex(nb);
+
+            // Colours locked for nb (by nb's neighbours, excluding `id`)
+            set<int> lockedForNb;
+            if (nbv) {
+                for (const auto& e2 : nbv->getAdj()) {
+                    int nb2 = e2.getDest()->getInfo();
+                    if (nb2 != id && reg[nb2] >= 0)
+                        lockedForNb.insert(reg[nb2]);
+                }
+            }
+
+            // Can nb move to some other colour in [0, K)?
+            for (int alt = 0; alt < K; alt++) {
+                if (alt == nbColor)          continue;  // same colour, no help
+                if (lockedForNb.count(alt))  continue;  // blocked for nb
+                if (usedByNeighbours.count(alt) &&
+                    // alt is used by another neighbour of `id` too → still blocked
+                    // unless nbColor was the only one using alt for `id`
+                    alt != nbColor)          continue;
+
+                // Moving nb from nbColor -> alt frees nbColor for `id`
+                // Verify nbColor is now free for `id` (no other neighbour uses it)
+                bool nbColorStillUsed = false;
+                for (int other : colouredNeighbours) {
+                    if (other != nb && reg[other] == nbColor) {
+                        nbColorStillUsed = true;
+                        break;
+                    }
+                }
+
+                if (!nbColorStillUsed) {
+                    reg[nb] = alt;          // recolour neighbour
+                    reg[id] = nbColor;      // assign freed colour to current web
+                    rescued = true;
+                    break;
+                }
+            }
+        }
+
+        if (!rescued) {
+            // All rescue attempts failed → spill this web
+            reg[id] = -1;
         }
     }
 
-    // Build result
-    map<int,int> finalReg;
+    // ------------------------------------------------------------------
+    // 4. Build AllocationResult
+    // ------------------------------------------------------------------
     bool feasible = true;
-    int maxColor = -1;
-    for (auto& [id, c] : webToReg) {
-        if (c < 0 || c >= K) { feasible = false; }
-        else maxColor = std::max(maxColor, c);
-        finalReg[id] = c;
+    int  maxColor = -1;
+
+    for (const auto& [id, c] : reg) {
+        if (c < 0) { feasible = false; break; }
+        maxColor = std::max(maxColor, c);
     }
 
     AllocationResult res;
     res.webs = webs;
+
     if (feasible) {
-        res.feasible = true;
+        res.feasible      = true;
         res.registersUsed = maxColor + 1;
-        res.webToRegister = finalReg;
+        res.webToRegister = reg;
     } else {
-        res.feasible = false;
+        res.feasible      = false;
         res.registersUsed = 0;
         for (const auto& w : webs) res.webToRegister[w.id] = -1;
     }
+
     return res;
 }

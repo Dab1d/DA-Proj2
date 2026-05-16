@@ -150,7 +150,7 @@ public:
                                                 int K, int maxSplits);
 
     // ------------------------------------------------------------------
-    // T2.4 – DSatur free allocation
+    // T2.4 – PASS (Priority-Aware Spill-Safe) free allocation
     // ------------------------------------------------------------------
 
     /**

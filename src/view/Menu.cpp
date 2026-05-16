@@ -38,12 +38,6 @@ int Menu::getSafeInteger() {
 }
 void Menu::waitForReturnToMenu() {
     std::string input;
-
-    while (true) {
-        cout << "\nPress Enter to return to the menu: ";
-        getline(cin, input);
-        if (input.empty()) return;
-
-        cout << "Invalid input. Please press Enter to return to the menu.\n";
-    }
+    cout << "\nPress Enter to return to the menu: ";
+    getline(cin, input);
 }

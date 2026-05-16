@@ -271,7 +271,7 @@ AllocationResult GraphColoring::splittingAllocation(const Graph<int>& graph,
 }
 
 // ---------------------------------------------------------------------------
-// T2.4 – PASS (Priority-Aware Spill-Safe) allocation
+// T2.4 – Priority-Aware Spill-Safe allocation
 //
 // Strategy:
 //   1. Sort webs by degree descending (hardest to colour first).
@@ -370,15 +370,10 @@ AllocationResult GraphColoring::freeAllocation(const Graph<int>& graph,
 
             // Can nb move to some other colour in [0, K)?
             for (int alt = 0; alt < K; alt++) {
-                if (alt == nbColor)          continue;  // same colour, no help
-                if (lockedForNb.count(alt))  continue;  // blocked for nb
-                if (usedByNeighbours.count(alt) &&
-                    // alt is used by another neighbour of `id` too → still blocked
-                    // unless nbColor was the only one using alt for `id`
-                    alt != nbColor)          continue;
+                if (alt == nbColor)         continue;
+                if (lockedForNb.count(alt)) continue;
 
-                // Moving nb from nbColor -> alt frees nbColor for `id`
-                // Verify nbColor is now free for `id` (no other neighbour uses it)
+                // Would moving nb actually free nbColor for id?
                 bool nbColorStillUsed = false;
                 for (int other : colouredNeighbours) {
                     if (other != nb && reg[other] == nbColor) {
@@ -388,13 +383,12 @@ AllocationResult GraphColoring::freeAllocation(const Graph<int>& graph,
                 }
 
                 if (!nbColorStillUsed) {
-                    reg[nb] = alt;          // recolour neighbour
-                    reg[id] = nbColor;      // assign freed colour to current web
+                    reg[nb] = alt;
+                    reg[id] = nbColor;
                     rescued = true;
                     break;
                 }
             }
-        }
 
         if (!rescued) {
             // All rescue attempts failed → spill this web

@@ -389,6 +389,7 @@ AllocationResult GraphColoring::freeAllocation(const Graph<int>& graph,
                     break;
                 }
             }
+        }
 
         if (!rescued) {
             // All rescue attempts failed → spill this web

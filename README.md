@@ -2,34 +2,34 @@
 ## Done ✅
 - Parser (ranges + registers files)
 - WebBuilder (union-find merge + interference graph)
-- T2.1 basicAllocation (4.0 pts)
-- Batch mode + Interactive mode (1.0 pts)
+- T1.1 — Interactive menu + batch mode (1.0 pts)
+- T1.2 — Parser + WebBuilder + interference graph (1.0 pts)
+- T2.1 — basicAllocation (4.0 pts)
+- T2.2 — spillingAllocation (3.0 pts)
+- T2.3 — splittingAllocation (3.0 pts)
+- T2.4 — freeAllocation / Priority-Aware Spill-Safe (4.0 pts)
 - MVC refactor: LoadRangesController, RegisterAllocatorController, ResultView, PathUtils
-- T2.2 spillingAllocation (3.0 pts)
-- T2.3 splittingAllocation (3.0 pts)
-- T2.4 freeAllocation / DSatur (4.0 pts)
+- GraphColoring split into per-algorithm files (BasicAllocation, SpillingAllocation, SplittingAllocation, FreeAllocation, GraphColoringHelpers)
+- Build verified clean after MVC refactor
+- Partial Doxygen: GraphColoring.h, WebBuilder.h, Parser.h, RegisterAllocatorController.h
+
+## Left ❌
 
 ### 1. Doxygen docs (2.0 pts) — highest priority
-Every public function needs `@brief`, `@param`, `@return`, `@note Time complexity: O(...)`.
-Files that need it most:
-- `include/algorithms/WebBuilder.h`
-- `include/algorithms/GraphColoring.h`
-- `include/controllers/LoadRangesController.h`
-- `include/controllers/RegisterAllocatorController.h`
-- `include/parser/Parser.h`
+Missing docs:
+- `include/controllers/LoadRangesController.h` — no docs on any method
+- `include/algorithms/GraphColoringHelpers.h` — no docs on any function
+- Query methods in `RegisterAllocatorController.h` (isLoaded, isFeasible, etc.)
 
 Then generate: `doxygen -g Doxyfile && doxygen Doxyfile`
 
-### 2. Build verification
-Project hasn't been compiled since MVC refactor. Need to confirm it builds cleanly.
-
-### 3. End-to-end test with all datasets
+### 2. End-to-end test with all datasets
 Run batch mode on all datasets and verify output matches expected format.
 
-### 4. PR parser → main
+### 3. PR parser → main
 `gh auth login` then `gh pr create --base main --head parser`
 
-### 5. Demo (2.0 pts)
+### 4. Demo (2.0 pts)
 10-min presentation — not code, but needs to be prepared.
 
 ## Quick Summary

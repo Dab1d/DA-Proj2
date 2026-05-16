@@ -1,0 +1,7 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(cmake --build /home/conduto/Desktop/2Y2S/DA/DA-Proj2/build)"
+    ]
+  }
+}

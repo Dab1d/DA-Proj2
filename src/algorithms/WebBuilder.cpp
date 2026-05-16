@@ -53,7 +53,7 @@ static bool shouldMerge(const LiveRange& a, const set<int>& aLines,
     return false;
 }
 
-vector<Web> WebBuilder::buildWebs(const vector<LiveRange>& ranges) {
+vector<Web> WebBuilder::buildWebs(const vector<LiveRange>& ranges, BuildCb cb) {
     // Group range indices by variable name
     std::map<std::string, vector<int>> byVar;
     for (int i = 0; i < (int)ranges.size(); i++)
@@ -66,6 +66,8 @@ vector<Web> WebBuilder::buildWebs(const vector<LiveRange>& ranges) {
         int n = indices.size();
         vector<int> uf(n);
         std::iota(uf.begin(), uf.end(), 0);
+
+        if (cb) cb({WebEventType::VAR_START, varName, -1, -1, {}, {}, n});
 
         // Pre-compute line sets
         vector<set<int>> lineSets(n);
@@ -81,6 +83,7 @@ vector<Web> WebBuilder::buildWebs(const vector<LiveRange>& ranges) {
                     if (ufFind(uf, i) == ufFind(uf, j)) continue;
                     if (shouldMerge(ranges[indices[i]], lineSets[i],
                                     ranges[indices[j]], lineSets[j])) {
+                        if (cb) cb({WebEventType::MERGE, varName, -1, -1, lineSets[i], lineSets[j], 0});
                         ufUnion(uf, i, j);
                         changed = true;
                     }
@@ -132,6 +135,7 @@ vector<Web> WebBuilder::buildWebs(const vector<LiveRange>& ranges) {
             w.varName = varName;
             w.points = std::move(deduped);
             w.liveLines = std::move(allLines);
+            if (cb) cb({WebEventType::WEB_FORMED, varName, w.id, -1, w.liveLines, {}, 0});
             webs.push_back(std::move(w));
         }
     }
@@ -144,7 +148,7 @@ vector<Web> WebBuilder::buildWebs(const vector<LiveRange>& ranges) {
     return webs;
 }
 
-void WebBuilder::buildInterferenceGraph(const vector<Web>& webs, Graph<int>& graph) {
+void WebBuilder::buildInterferenceGraph(const vector<Web>& webs, Graph<int>& graph, BuildCb cb) {
     // Add one vertex per web
     for (const auto& w : webs)
         graph.addVertex(w.id);
@@ -177,6 +181,8 @@ void WebBuilder::buildInterferenceGraph(const vector<Web>& webs, Graph<int>& gra
             // They interfere: add bidirectional edges
             graph.addEdge(wi.id, wj.id, 0);
             graph.addEdge(wj.id, wi.id, 0);
+            if (cb) cb({WebEventType::EDGE_ADDED, "", wi.id, wj.id,
+                        set<int>(common.begin(), common.end()), {}, 0});
         }
     }
 }

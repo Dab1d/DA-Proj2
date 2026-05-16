@@ -4,6 +4,9 @@
 #include "structures/Structures.h"
 #include "structures/Graph.h"
 #include <vector>
+#include <functional>
+
+using BuildCb = std::function<void(const WebBuildEvent&)>;
 
 /**
  * @class WebBuilder
@@ -22,7 +25,8 @@ public:
      * @return Vector of webs with sequential IDs.
      * @note Time complexity: O(R^2 * P) where R = number of live ranges, P = average points per range.
      */
-    static std::vector<Web> buildWebs(const std::vector<LiveRange>& ranges);
+    static std::vector<Web> buildWebs(const std::vector<LiveRange>& ranges,
+                                      BuildCb cb = nullptr);
 
     /**
      * @brief Builds the interference graph from a set of webs.
@@ -33,9 +37,11 @@ public:
      *
      * @param webs The webs to build the graph from.
      * @param graph Output graph where vertices are web IDs and edges are interferences.
+     * @param cb Optional callback fired for each EDGE_ADDED event.
      * @note Time complexity: O(W^2 * P) where W = number of webs, P = average live lines per web.
      */
-    static void buildInterferenceGraph(const std::vector<Web>& webs, Graph<int>& graph);
+    static void buildInterferenceGraph(const std::vector<Web>& webs, Graph<int>& graph,
+                                       BuildCb cb = nullptr);
 };
 
 #endif // DA_PROJ2_WEBBUILDER_H

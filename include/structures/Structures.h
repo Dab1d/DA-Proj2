@@ -68,4 +68,25 @@ struct AllocationResult {
     std::map<int, int> webToRegister; ///< web.id → register index (-1 = spilled to memory)
 };
 
+// ---------------------------------------------------------------------------
+// Web-build event types (used by the visualization callback)
+// ---------------------------------------------------------------------------
+
+enum class WebEventType {
+    VAR_START,   ///< Starting to process a variable's live ranges
+    MERGE,       ///< Two live ranges were merged (union-find step)
+    WEB_FORMED,  ///< A final web was created
+    EDGE_ADDED   ///< An interference edge was added to the graph
+};
+
+struct WebBuildEvent {
+    WebEventType  type;
+    std::string   varName;
+    int           webIdA     = -1;  ///< web id (WEB_FORMED) or first web (EDGE_ADDED)
+    int           webIdB     = -1;  ///< second web id (EDGE_ADDED)
+    std::set<int> linesA;           ///< line set of first range / web's liveLines
+    std::set<int> linesB;           ///< line set of second range (MERGE only)
+    int           rangeCount = 0;   ///< number of ranges for this variable (VAR_START)
+};
+
 #endif // DA_PROJ2_STRUCTURES_H

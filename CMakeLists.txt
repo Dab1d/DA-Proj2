@@ -8,6 +8,7 @@ add_executable(main
         src/view/BatchMode.cpp
         src/view/InteractiveMode.cpp
         src/view/ResultView.cpp
+        src/view/WebVisualizer.cpp
         src/parser/Parser.cpp
         src/parser/parserTools.cpp
         src/algorithms/WebBuilder.cpp

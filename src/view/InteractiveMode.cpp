@@ -22,7 +22,7 @@ void InteractiveMode::run() {
         switch (choice) {
             case 1:
                 try {
-                    gLoader.loadRangesFromFile(promptFilename("select the number of the file if it are in this format:datasets/basic/rangesX.txt, otherwise write the full path of the file", "datasets/basic/ranges"));
+                    gLoader.loadRangesFromFile(promptFilename("Enter filename or its number (eg. ranges1 or 1)", "datasets/basic/ranges"));
                     cout << "Loaded " << gLoader.getRangeCount() << " live range(s).\n";
                 } catch (const std::exception& e) {
                     cout << "Error: " << e.what() << "\n";
@@ -31,7 +31,7 @@ void InteractiveMode::run() {
 
             case 2:
                 try {
-                    gLoader.loadConfigFromFile(promptFilename("select the number of the file if it are in this format:datasets/basic/registersX.txt, otherwise write the full path of the file", "datasets/basic/registers"));
+                    gLoader.loadConfigFromFile(promptFilename("Enter filename or its number (eg. registers1 or 1)", "datasets/basic/registers"));
                     cout << "Config loaded: " << gLoader.getNumRegisters() << " register(s).\n";
                 } catch (const std::exception& e) {
                     cout << "Error: " << e.what() << "\n";

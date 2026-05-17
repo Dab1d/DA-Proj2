@@ -8,10 +8,16 @@ add_executable(main
         src/view/BatchMode.cpp
         src/view/InteractiveMode.cpp
         src/view/ResultView.cpp
+        src/view/WebVisualizer.cpp
+        src/view/AllocationVisualizer.cpp
         src/parser/Parser.cpp
         src/parser/parserTools.cpp
         src/algorithms/WebBuilder.cpp
-        src/algorithms/GraphColoring.cpp
+        src/algorithms/GraphColoringHelpers.cpp
+        src/algorithms/BasicAllocation.cpp
+        src/algorithms/SpillingAllocation.cpp
+        src/algorithms/SplittingAllocation.cpp
+        src/algorithms/FreeAllocation.cpp
         src/controllers/LoadRangesController.cpp
         src/controllers/RegisterAllocaterController.cpp
         src/utils/PathUtils.cpp

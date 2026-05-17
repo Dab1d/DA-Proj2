@@ -1,6 +1,8 @@
 #include "view/InteractiveMode.h"
 #include "view/Menu.h"
 #include "view/ResultView.h"
+#include "view/WebVisualizer.h"
+#include "view/AllocationVisualizer.h"
 #include "controllers/LoadRangesController.h"
 #include "controllers/RegisterAllocatorController.h"
 
@@ -42,7 +44,7 @@ void InteractiveMode::run() {
                 try {
                     if (!gLoader.isReady())
                         throw std::runtime_error("Load ranges and config first (options 1 and 2)");
-                    gAlloc.build(gLoader.getLiveRanges(), gLoader.getConfig());
+                    buildWithVisualization(gAlloc, gLoader.getLiveRanges(), gLoader.getConfig());
                     cout << "Built " << gAlloc.getWebCount() << " web(s) and interference graph.\n";
                 } catch (const std::exception& e) {
                     cout << "Error: " << e.what() << "\n";
@@ -51,10 +53,7 @@ void InteractiveMode::run() {
 
             case 4:
                 try {
-                    gAlloc.run();
-                    cout << (gAlloc.isFeasible()
-                        ? "Allocation successful.\n"
-                        : "Allocation INFEASIBLE.\n");
+                    runWithVisualization(gAlloc);
                 } catch (const std::exception& e) {
                     cout << "Error: " << e.what() << "\n";
                 }

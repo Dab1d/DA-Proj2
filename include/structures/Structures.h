@@ -68,4 +68,50 @@ struct AllocationResult {
     std::map<int, int> webToRegister; ///< web.id → register index (-1 = spilled to memory)
 };
 
+// ---------------------------------------------------------------------------
+// Web-build event types (used by the visualization callback)
+// ---------------------------------------------------------------------------
+
+enum class WebEventType {
+    VAR_START,   ///< Starting to process a variable's live ranges
+    MERGE,       ///< Two live ranges were merged (union-find step)
+    WEB_FORMED,  ///< A final web was created
+    EDGE_ADDED   ///< An interference edge was added to the graph
+};
+
+struct WebBuildEvent {
+    WebEventType             type;
+    std::string              varName;
+    int                      webIdA     = -1;  ///< web id (WEB_FORMED) or first web (EDGE_ADDED)
+    int                      webIdB     = -1;  ///< second web id (EDGE_ADDED)
+    std::set<int>            linesA;           ///< line set of first range / web's liveLines
+    std::set<int>            linesB;           ///< line set of second range (MERGE only)
+    int                      rangeCount = 0;   ///< number of ranges for this variable (VAR_START)
+    std::vector<ProgramPoint> pts;             ///< sorted program points with +/- markers (WEB_FORMED)
+};
+
+// ---------------------------------------------------------------------------
+// Allocation event types (used by the allocation animation callback)
+// ---------------------------------------------------------------------------
+
+enum class AllocEventType {
+    ALGO_START,  ///< Algorithm name + K announced
+    PHASE,       ///< Phase header ("Reduction" / "Coloring")
+    WEB_PUSHED,  ///< Web pushed to stack (degree < K)
+    WEB_SPILLED, ///< Web selected for forced spill
+    WEB_COLORED, ///< Web assigned a physical register
+    WEB_RESCUED, ///< Free alloc: local recolor freed a slot
+    ATTEMPT,     ///< Spilling/splitting iteration start
+};
+
+struct AllocEvent {
+    AllocEventType type;
+    int         webId   = -1;  ///< affected web id
+    int         reg     = -1;  ///< register assigned (-1 = spill)
+    int         degree  = -1;  ///< active degree at decision time
+    int         attempt = -1;  ///< iteration number (ATTEMPT)
+    std::string varName;       ///< variable name of the web
+    std::string label;         ///< algo name (ALGO_START) or phase name (PHASE)
+};
+
 #endif // DA_PROJ2_STRUCTURES_H

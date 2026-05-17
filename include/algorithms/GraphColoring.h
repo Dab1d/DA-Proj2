@@ -3,6 +3,7 @@
 
 #include "structures/Structures.h"
 #include "structures/Graph.h"
+#include "algorithms/GraphColoringHelpers.h"
 #include <vector>
 
 /**
@@ -70,7 +71,7 @@ public:
      */
     static AllocationResult basicAllocation(const Graph<int>& graph,
                                             const std::vector<Web>& webs,
-                                            int K);
+                                            int K, AllocCb cb = nullptr);
 
     // ------------------------------------------------------------------
     // T2.2 – Allocation with web spilling
@@ -112,7 +113,8 @@ public:
      */
     static AllocationResult spillingAllocation(const Graph<int>& graph,
                                                const std::vector<Web>& webs,
-                                               int K, int maxSpills);
+                                               int K, int maxSpills,
+                                               AllocCb cb = nullptr);
 
     // ------------------------------------------------------------------
     // T2.3 – Allocation with web splitting
@@ -147,7 +149,8 @@ public:
      */
     static AllocationResult splittingAllocation(const Graph<int>& graph,
                                                 std::vector<Web>& webs,
-                                                int K, int maxSplits);
+                                                int K, int maxSplits,
+                                                AllocCb cb = nullptr);
 
     // ------------------------------------------------------------------
     // T2.4 – PASS (Priority-Aware Spill-Safe) free allocation
@@ -184,7 +187,7 @@ public:
      */
     static AllocationResult freeAllocation(const Graph<int>& graph,
                                            const std::vector<Web>& webs,
-                                           int K);
+                                           int K, AllocCb cb = nullptr);
 };
 
 #endif // DA_PROJ2_GRAPHCOLORING_H

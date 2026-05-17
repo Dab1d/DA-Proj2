@@ -43,3 +43,4 @@ latex/
 html/
 .idea/
 .vscode/
+build/

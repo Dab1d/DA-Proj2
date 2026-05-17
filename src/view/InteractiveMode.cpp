@@ -175,12 +175,11 @@ void doAllocate() {
     try {
         gAlloc.run();
         if (gAlloc.isFeasible()) {
-            cout << "  Allocation successful.\n";
+            cout << "  Allocation SUCCESSFUL.\n";
         } else {
             cout << "  Allocation INFEASIBLE.\n";
-            for (const auto& w : gAlloc.getResult().webs)
-                cout << "    M: web" << w.id << "\n";
         }
+        printAllocationSummary(gAlloc.getResult());
     } catch (const std::exception& e) {
         cout << "  ERROR: " << e.what() << "\n";
     }

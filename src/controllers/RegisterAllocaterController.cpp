@@ -83,6 +83,7 @@ static std::filesystem::path resolveOutputPath(const string& filename) {
     namespace fs = std::filesystem;
 
     fs::path requested(filename);
+    if (!requested.has_extension()) requested += ".txt";
     if (requested.is_absolute()) return requested;
 
     fs::path root = findProjectRoot();

@@ -203,6 +203,7 @@ void doWriteResult() {
 void doSetOutput() {
     string input = askLine("  new output filename: ");
     if (input.empty()) { cout << "  cancelled.\n"; return; }
+    if (std::filesystem::path(input).extension().empty()) input += ".txt";
     gOutputFile = input;
     cout << "  output file set to: " << gOutputFile << "\n";
 }
@@ -216,6 +217,7 @@ void doEndToEnd() {
 
     string output = askLine("  output filename [" + displayOutputTarget() + "]: ");
     if (!output.empty()) {
+        if (std::filesystem::path(output).extension().empty()) output += ".txt";
         gOutputFile = output;
         cout << "  output file set to: " << displayOutputTarget() << "\n";
     }

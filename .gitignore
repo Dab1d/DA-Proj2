@@ -44,3 +44,15 @@ html/
 .idea/
 .vscode/
 build/
+cmake-build-debug/
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+
+# AI/Editor configurations
+.claude/
+
+# Generated Output files
+allocation.txt
+datasets/**/output/*.txt

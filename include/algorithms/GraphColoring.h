@@ -154,33 +154,28 @@ public:
     // ------------------------------------------------------------------
 
     /**
-     * @brief Custom register allocation using the DSatur heuristic.
+     * @brief Custom register allocation using the PASS (Priority-Aware Spill-Safe) heuristic.
      *
-     * ### Algorithm (DSatur – Brélaz 1979)
-     *    1. Sort webs by degree descending (hardest to colour first).
-     *    2. For each web, assign the smallest colour not used by neighbours.
-     *    3. If that colour would exceed K, attempt a *local recolour*: scan
-     *       already-coloured neighbours and check whether any of them can be
-     *       moved to a different colour, freeing a slot for the current web.
-     *    4. Only if local recolouring also fails, spill the current web (reg = -1).
+     * ### Algorithm (PASS – Static Priority with Local Recoloring)
+     *    1. Sort webs by their initial degree in descending order (static priority).
+     *    2. For each web, assign the smallest colour [0, K) not used by its neighbours.
+     *    3. If no colour < K is available, attempt a *local recolour*: check if an
+     *       already-coloured neighbour can be moved to a different available colour
+     *       to free up its current register for the current web.
+     *    4. If local recolouring fails, the web is spilled (register = -1).
      *
-     *    This avoids the eagerly-spill behaviour of plain greedy and the full
-     *      saturation scan of DSatur, instead investing one extra O(K) probe per
-     *       conflict to rescue colours before giving up.
-     *
-     *      Time complexity: O(W^2 * K) in the worst case, O(W^2) on typical inputs
-     * where conflicts are sparse.
+     * This strategy provides a compromise between simple greedy allocation and
+     * the more complex DSatur, using static degree as a priority proxy and
+     * local backtracking to rescue colour assignments.
      *
      * @param graph Interference graph.
      * @param webs  All webs.
      * @param K     Number of available physical registers.
-     * @return      @ref AllocationResult; @c feasible = false if more than K
-     *              colours were needed.
+     * @return      @ref AllocationResult; @c feasible = false if any web was spilled.
      *
-     * @note **Time complexity:** O(W²) where W = number of webs.
-     *       Each of the W colouring steps scans all uncoloured vertices to
-     *       find the maximum-saturation candidate (O(W)) and then updates the
-     *       saturation of its neighbours (O(W) in the worst case).
+     * @note **Time complexity:** O(W^2 * K) where W = number of webs.
+     *       Sorting takes O(W log W). Each of the W colouring steps involves
+     *       scanning neighbours O(W) and an O(W * K) local recoloring probe.
      */
     static AllocationResult freeAllocation(const Graph<int>& graph,
                                            const std::vector<Web>& webs,

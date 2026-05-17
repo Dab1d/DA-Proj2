@@ -28,6 +28,9 @@ bool BatchMode::run(const string& ranges, const string& registers, const string&
         RegisterAllocatorController ctrl;
         ctrl.build(liveRanges, config);
         ctrl.run();
+        if (!ctrl.isFeasible()) {
+            std::cerr << "Warning: The assignment to the provided number of registers was not possible." << std::endl;
+        }
         ctrl.writeOutput(allocation);
         return true;
     } catch (const std::exception& e) {

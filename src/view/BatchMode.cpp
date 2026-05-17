@@ -1,22 +1,37 @@
 #include "view/BatchMode.h"
 #include "parser/Parser.h"
 #include "controllers/RegisterAllocatorController.h"
+#include "utils/PathUtils.h"
+
 #include <iostream>
+#include <stdexcept>
 #include <string>
 
 using std::string;
 
-void BatchMode::run(const string& ranges, const string& registers, const string& allocation) {
+static bool requiresParameter(AlgorithmType algorithm) {
+    return algorithm == AlgorithmType::SPILLING || algorithm == AlgorithmType::SPLITTING;
+}
+
+bool BatchMode::run(const string& ranges, const string& registers, const string& allocation) {
     try {
-        auto liveRanges = Parser::parseLiveRanges(ranges);
-        auto config     = Parser::parseRegisterConfig(registers);
+        const string rangesPath = resolveFilePath(ranges, "datasets/basic/ranges");
+        const string registersPath = resolveFilePath(registers, "datasets/basic/registers");
+
+        auto liveRanges = Parser::parseLiveRanges(rangesPath);
+        auto config = Parser::parseRegisterConfig(registersPath);
+
+        if (requiresParameter(config.algorithm) && config.algorithmParam <= 0) {
+            throw std::invalid_argument("spilling/splitting requires a positive numeric parameter in batch mode");
+        }
 
         RegisterAllocatorController ctrl;
         ctrl.build(liveRanges, config);
         ctrl.run();
         ctrl.writeOutput(allocation);
-
+        return true;
     } catch (const std::exception& e) {
-        std::cerr << "Error: " << e.what() << std::endl;
+        std::cerr << "Error: " << e.what() << '\n';
+        return false;
     }
 }

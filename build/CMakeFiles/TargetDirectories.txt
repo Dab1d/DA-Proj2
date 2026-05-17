@@ -1,0 +1,3 @@
+/home/andrefb26/Desktop/DA/DA-Proj2/build/CMakeFiles/main.dir
+/home/andrefb26/Desktop/DA/DA-Proj2/build/CMakeFiles/edit_cache.dir
+/home/andrefb26/Desktop/DA/DA-Proj2/build/CMakeFiles/rebuild_cache.dir

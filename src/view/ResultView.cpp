@@ -38,6 +38,29 @@ string promptFilename(const string& label, const char* preferredSub) {
     return resolveFilePath(path, preferredSub);
 }
 
+void printAllocationAssignments(const AllocationResult& result) {
+    std::map<int, vector<int>> regToWebs;
+    for (const auto& [wid, reg] : result.webToRegister)
+        regToWebs[reg].push_back(wid);
+
+    if (regToWebs.count(-1)) {
+        auto& spilled = regToWebs[-1];
+        std::sort(spilled.begin(), spilled.end());
+        for (int wid : spilled) cout << "    M: web" << wid << "\n";
+    }
+
+    for (auto& [reg, wids] : regToWebs) {
+        if (reg < 0) continue;
+        std::sort(wids.begin(), wids.end());
+        for (int wid : wids) cout << "    r" << reg << ": web" << wid << "\n";
+    }
+}
+
+void printAllocationSummary(const AllocationResult& result) {
+    cout << "   registers: " << result.registersUsed << "\n";
+    printAllocationAssignments(result);
+}
+
 void printAllocationResult(const RegisterAllocatorController& ctrl) {
     if (!ctrl.isAllocated()) { cout << "No allocation has been run yet.\n"; return; }
 
@@ -45,26 +68,13 @@ void printAllocationResult(const RegisterAllocatorController& ctrl) {
     cout << "\n=== Allocation Result ===\n";
     cout << "webs: " << res.webs.size() << "\n";
     for (const auto& w : res.webs)
-        cout << "  web" << w.id << " [" << w.varName << "]: " << fmtPoints(w.points) << "\n";
+        cout << "    web" << w.id << " [" << w.varName << "]: " << fmtPoints(w.points) << "\n";
 
     if (res.feasible) {
         cout << "registers used: " << res.registersUsed << "\n";
-        std::map<int, vector<int>> regToWebs;
-        for (const auto& [wid, reg] : res.webToRegister)
-            regToWebs[reg].push_back(wid);
-        if (regToWebs.count(-1)) {
-            auto& sp = regToWebs[-1];
-            std::sort(sp.begin(), sp.end());
-            for (int wid : sp) cout << "M: web" << wid << "\n";
-        }
-        for (auto& [reg, wids] : regToWebs) {
-            if (reg < 0) continue;
-            std::sort(wids.begin(), wids.end());
-            for (int wid : wids) cout << "  r" << reg << " -> web" << wid << "\n";
-        }
     } else {
         cout << "Allocation INFEASIBLE with " << ctrl.getNumRegisters() << " register(s).\n";
-        for (const auto& w : res.webs) cout << "M: web" << w.id << "\n";
     }
+    printAllocationAssignments(res);
     cout << "=========================\n";
 }

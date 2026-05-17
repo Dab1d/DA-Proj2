@@ -22,13 +22,12 @@ public:
      * @param registers Path to the register configuration file.
      * @param allocation Path for the output allocation file.
      *
-     * @throws std::runtime_error if input files cannot be opened.
-     * @throws std::invalid_argument if input format is invalid.
+     * @return true on success, false if parsing/allocation/output fails.
      *
      * @note Time complexity: O(W^2 * P) dominated by interference graph
      *       construction, where W = number of webs and P = max program points per web.
      */
-    static void run(const string& ranges,const string& registers,const string& allocation);
+    static bool run(const string& ranges, const string& registers, const string& allocation);
 };
 
 #endif // DA_PROJ2_BATCHMODE_H

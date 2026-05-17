@@ -55,7 +55,7 @@ void printAllocationResult(const RegisterAllocatorController& ctrl) {
         if (regToWebs.count(-1)) {
             auto& sp = regToWebs[-1];
             std::sort(sp.begin(), sp.end());
-            for (int wid : sp) cout << "  M -> web" << wid << "\n";
+            for (int wid : sp) cout << "M: web" << wid << "\n";
         }
         for (auto& [reg, wids] : regToWebs) {
             if (reg < 0) continue;
@@ -64,7 +64,7 @@ void printAllocationResult(const RegisterAllocatorController& ctrl) {
         }
     } else {
         cout << "Allocation INFEASIBLE with " << ctrl.getNumRegisters() << " register(s).\n";
-        for (const auto& w : res.webs) cout << "  M -> web" << w.id << "\n";
+        for (const auto& w : res.webs) cout << "M: web" << w.id << "\n";
     }
     cout << "=========================\n";
 }

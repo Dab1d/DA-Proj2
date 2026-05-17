@@ -1,16 +1,17 @@
 #include "controllers/RegisterAllocatorController.h"
 #include "algorithms/WebBuilder.h"
 #include "algorithms/GraphColoring.h"
+#include "utils/PathUtils.h"
 
 #include <iostream>
 #include <fstream>
 #include <algorithm>
 #include <stdexcept>
 #include <map>
+#include <filesystem>
 
 using std::string;
 using std::vector;
-using std::cerr;
 
 // ---------------------------------------------------------------------------
 // Helpers
@@ -75,9 +76,26 @@ void RegisterAllocatorController::run() {
     }
 
     allocated = true;
+}
 
-    if (!result.feasible)
-        cerr << "Warning: allocation with " << K << " registers was not possible.\n";
+
+static std::filesystem::path resolveOutputPath(const string& filename) {
+    namespace fs = std::filesystem;
+
+    fs::path requested(filename);
+    if (requested.is_absolute()) return requested;
+
+    fs::path root = findProjectRoot();
+    if (requested.has_parent_path()) {
+        return root.empty() ? requested : root / requested;
+    }
+
+    fs::path outputDir = root.empty()
+        ? fs::path("datasets/basic/output")
+        : root / "datasets/basic/output";
+
+    fs::create_directories(outputDir);
+    return outputDir / requested;
 }
 
 // ---------------------------------------------------------------------------
@@ -87,9 +105,10 @@ void RegisterAllocatorController::run() {
 void RegisterAllocatorController::writeOutput(const string& filename) const {
     if (!allocated) throw std::runtime_error("Call run() before writeOutput()");
 
-    std::ofstream out(filename);
+    const auto outputPath = resolveOutputPath(filename);
+    std::ofstream out(outputPath);
     if (!out.is_open())
-        throw std::runtime_error("Cannot open output file: " + filename);
+        throw std::runtime_error("Cannot open output file: " + outputPath.string());
 
     const vector<Web>& ws = result.webs;
 

@@ -140,14 +140,10 @@ RegisterConfig Parser::parseRegisterConfig(const string& filename) {
                 config.algorithm = AlgorithmType::BASIC;
             } else if (algName == "spilling") {
                 config.algorithm = AlgorithmType::SPILLING;
-                if (paramStr.empty())
-                    throw invalid_argument("'spilling' requires a parameter");
-                config.algorithmParam = stoi(paramStr);
+                if (!paramStr.empty()) config.algorithmParam = stoi(paramStr);
             } else if (algName == "splitting") {
                 config.algorithm = AlgorithmType::SPLITTING;
-                if (paramStr.empty())
-                    throw invalid_argument("'splitting' requires a parameter");
-                config.algorithmParam = stoi(paramStr);
+                if (!paramStr.empty()) config.algorithmParam = stoi(paramStr);
             } else if (algName == "free") {
                 config.algorithm = AlgorithmType::FREE;
             } else {

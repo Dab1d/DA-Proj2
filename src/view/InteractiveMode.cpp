@@ -2,6 +2,7 @@
 #include "view/Menu.h"
 #include "view/ResultView.h"
 #include "view/WebVisualizer.h"
+#include "view/AllocationVisualizer.h"
 #include "controllers/LoadRangesController.h"
 #include "controllers/RegisterAllocatorController.h"
 
@@ -52,10 +53,7 @@ void InteractiveMode::run() {
 
             case 4:
                 try {
-                    gAlloc.run();
-                    cout << (gAlloc.isFeasible()
-                        ? "Allocation successful.\n"
-                        : "Allocation INFEASIBLE.\n");
+                    runWithVisualization(gAlloc);
                 } catch (const std::exception& e) {
                     cout << "Error: " << e.what() << "\n";
                 }

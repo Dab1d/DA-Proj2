@@ -26,6 +26,31 @@ static std::string fmtLines(const std::set<int>& lines) {
     return s;
 }
 
+static std::string fmtPoints(const std::vector<ProgramPoint>& pts) {
+    if (pts.empty()) return "{}";
+
+    // Check if the web has any real markers in the data
+    bool anyDef = false, anyUse = false;
+    for (const auto& pp : pts) {
+        anyDef |= pp.isDefinition;
+        anyUse |= pp.isLastUse;
+    }
+    // Only use fallback if the web has NO real markers at all
+    bool useFallback = !anyDef && !anyUse;
+
+    std::string s = "{";
+    int last = (int)pts.size() - 1;
+    for (int k = 0; k <= last; k++) {
+        const auto& pp = pts[k];
+        s += std::to_string(pp.line);
+        if (pp.isDefinition || (useFallback && k == 0))    s += '+';
+        if (pp.isLastUse    || (useFallback && k == last)) s += '-';
+        s += ' ';
+    }
+    s.back() = '}';
+    return s;
+}
+
 // ---------------------------------------------------------------------------
 // Circular ASCII graph renderer
 // ---------------------------------------------------------------------------
@@ -192,7 +217,7 @@ void buildWithVisualization(RegisterAllocatorController& alloc,
                 cout << GREEN
                      << "  -> web" << e.webIdA
                      << "  " << e.varName
-                     << "  lines: " << fmtLines(e.linesA)
+                     << "  " << fmtPoints(e.pts)
                      << RESET << '\n';
                 break;
             case WebEventType::EDGE_ADDED:

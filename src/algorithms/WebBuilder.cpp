@@ -135,7 +135,7 @@ vector<Web> WebBuilder::buildWebs(const vector<LiveRange>& ranges, BuildCb cb) {
             w.varName = varName;
             w.points = std::move(deduped);
             w.liveLines = std::move(allLines);
-            if (cb) cb({WebEventType::WEB_FORMED, varName, w.id, -1, w.liveLines, {}, 0});
+            if (cb) cb({WebEventType::WEB_FORMED, varName, w.id, -1, w.liveLines, {}, 0, w.points});
             webs.push_back(std::move(w));
         }
     }

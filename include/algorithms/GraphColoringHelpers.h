@@ -6,6 +6,9 @@
 #include <set>
 #include <map>
 #include <vector>
+#include <functional>
+
+using AllocCb = std::function<void(const AllocEvent&)>;
 
 int activeDegree(int node, const Graph<int>& g, const std::set<int>& active);
 
@@ -13,7 +16,7 @@ int pickSpill(const std::set<int>& active, const Graph<int>& g,
               const std::map<int, const Web*>& webMap);
 
 std::map<int,int> greedyColor(const Graph<int>& g, const std::vector<Web>& webs, int K,
-                               std::set<int> forcedSpills = {});
+                               std::set<int> forcedSpills = {}, AllocCb cb = nullptr);
 
 AllocationResult makeResult(const std::map<int,int>& reg,
                             const std::vector<Web>& webs, int K);

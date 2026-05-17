@@ -30,9 +30,14 @@ int pickSpill(const set<int>& active, const Graph<int>& g,
 }
 
 map<int,int> greedyColor(const Graph<int>& g, const vector<Web>& webs, int K,
-                          set<int> forcedSpills) {
+                          set<int> forcedSpills, AllocCb cb) {
     map<int, const Web*> webMap;
     for (const auto& w : webs) webMap[w.id] = &w;
+
+    // Report initially forced spills upfront
+    for (int s : forcedSpills)
+        if (cb && webMap.count(s))
+            cb({AllocEventType::WEB_SPILLED, s, -1, -1, -1, webMap.at(s)->varName, ""});
 
     set<int> active;
     for (const auto& w : webs)
@@ -41,15 +46,24 @@ map<int,int> greedyColor(const Graph<int>& g, const vector<Web>& webs, int K,
     stack<int> S;
     set<int> spilled = forcedSpills;
 
+    if (cb) cb({AllocEventType::PHASE, -1, -1, -1, -1, "", "Reduction"});
+
     bool progress = true;
     while (!active.empty() && progress) {
         progress = false;
         vector<int> toRemove;
         for (int n : active)
             if (activeDegree(n, g, active) < K) { toRemove.push_back(n); progress = true; }
-        for (int n : toRemove) { S.push(n); active.erase(n); }
+        for (int n : toRemove) {
+            int deg = activeDegree(n, g, active);
+            if (cb) cb({AllocEventType::WEB_PUSHED, n, -1, deg, -1, webMap.at(n)->varName, ""});
+            S.push(n);
+            active.erase(n);
+        }
         if (!progress && !active.empty()) {
             int k = pickSpill(active, g, webMap);
+            int deg = activeDegree(k, g, active);
+            if (cb) cb({AllocEventType::WEB_SPILLED, k, -1, deg, -1, webMap.at(k)->varName, ""});
             spilled.insert(k);
             active.erase(k);
             progress = true;
@@ -58,6 +72,8 @@ map<int,int> greedyColor(const Graph<int>& g, const vector<Web>& webs, int K,
 
     map<int,int> webToReg;
     for (int s : spilled) webToReg[s] = -1;
+
+    if (cb) cb({AllocEventType::PHASE, -1, -1, -1, -1, "", "Coloring"});
 
     while (!S.empty()) {
         int n = S.top(); S.pop();
@@ -73,6 +89,7 @@ map<int,int> greedyColor(const Graph<int>& g, const vector<Web>& webs, int K,
         int color = 0;
         while (usedColors.count(color)) color++;
         webToReg[n] = color;
+        if (cb) cb({AllocEventType::WEB_COLORED, n, color, -1, -1, webMap.at(n)->varName, ""});
     }
 
     return webToReg;

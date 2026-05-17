@@ -10,13 +10,18 @@ using std::vector;
 
 AllocationResult GraphColoring::spillingAllocation(const Graph<int>& graph,
                                                     const vector<Web>& webs,
-                                                    int K, int maxSpills) {
+                                                    int K, int maxSpills,
+                                                    AllocCb cb) {
+    if (cb) cb({AllocEventType::ALGO_START, -1, -1, -1, -1, "", "spilling"});
+
     set<int> forcedSpills;
     map<int, const Web*> webMap;
     for (const auto& w : webs) webMap[w.id] = &w;
 
     for (int attempt = 0; attempt <= maxSpills; attempt++) {
-        auto reg = greedyColor(graph, webs, K, forcedSpills);
+        if (cb) cb({AllocEventType::ATTEMPT, -1, -1, -1, attempt, "", ""});
+
+        auto reg = greedyColor(graph, webs, K, forcedSpills, cb);
 
         bool ok = true;
         int maxColor = -1;

@@ -1,4 +1,5 @@
 #include "algorithms/GraphColoring.h"
+#include "algorithms/GraphColoringHelpers.h"
 #include <set>
 #include <map>
 #include <vector>
@@ -9,7 +10,10 @@ using std::map;
 using std::vector;
 
 AllocationResult GraphColoring::freeAllocation(const Graph<int>& graph,
-                                                const vector<Web>& webs, int K) {
+                                                const vector<Web>& webs,
+                                                int K, AllocCb cb) {
+    if (cb) cb({AllocEventType::ALGO_START, -1, -1, -1, -1, "", "free"});
+
     map<int, int> degree;
     for (const auto& w : webs) {
         auto* v = graph.findVertex(w.id);
@@ -22,6 +26,12 @@ AllocationResult GraphColoring::freeAllocation(const Graph<int>& graph,
     std::sort(order.begin(), order.end(), [&](int a, int b) {
         return degree[a] > degree[b];
     });
+
+    // varName lookup
+    map<int,std::string> varOf;
+    for (const auto& w : webs) varOf[w.id] = w.varName;
+
+    if (cb) cb({AllocEventType::PHASE, -1, -1, -1, -1, "", "Coloring"});
 
     map<int, int> reg;
     for (const auto& w : webs) reg[w.id] = -2;
@@ -44,7 +54,11 @@ AllocationResult GraphColoring::freeAllocation(const Graph<int>& graph,
         int color = 0;
         while (usedByNeighbours.count(color)) color++;
 
-        if (color < K) { reg[id] = color; continue; }
+        if (color < K) {
+            reg[id] = color;
+            if (cb) cb({AllocEventType::WEB_COLORED, id, color, degree[id], -1, varOf[id], ""});
+            continue;
+        }
 
         bool rescued = false;
         for (int nb : colouredNeighbours) {
@@ -71,12 +85,16 @@ AllocationResult GraphColoring::freeAllocation(const Graph<int>& graph,
                     reg[nb] = alt;
                     reg[id] = nbColor;
                     rescued  = true;
+                    if (cb) cb({AllocEventType::WEB_RESCUED, id, nbColor, degree[id], -1, varOf[id], ""});
                     break;
                 }
             }
         }
 
-        if (!rescued) reg[id] = -1;
+        if (!rescued) {
+            reg[id] = -1;
+            if (cb) cb({AllocEventType::WEB_SPILLED, id, -1, degree[id], -1, varOf[id], ""});
+        }
     }
 
     bool feasible = true;

@@ -11,16 +11,21 @@ using std::vector;
 
 AllocationResult GraphColoring::splittingAllocation(const Graph<int>& graph,
                                                       vector<Web>& webs,
-                                                      int K, int maxSplits) {
+                                                      int K, int maxSplits,
+                                                      AllocCb cb) {
+    if (cb) cb({AllocEventType::ALGO_START, -1, -1, -1, -1, "", "splitting"});
+
     vector<Web> currentWebs = webs;
     int nextId = 0;
     for (const auto& w : currentWebs) nextId = std::max(nextId, w.id + 1);
 
     for (int attempt = 0; attempt <= maxSplits; attempt++) {
+        if (cb) cb({AllocEventType::ATTEMPT, -1, -1, -1, attempt, "", ""});
+
         Graph<int> g;
         WebBuilder::buildInterferenceGraph(currentWebs, g);
 
-        auto reg = greedyColor(g, currentWebs, K);
+        auto reg = greedyColor(g, currentWebs, K, {}, cb);
         auto res = makeResult(reg, currentWebs, K);
         if (res.feasible) {
             webs = currentWebs;

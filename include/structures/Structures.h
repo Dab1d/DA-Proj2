@@ -7,6 +7,11 @@
 #include <map>
 
 /**
+ * @file Structures.h
+ * @brief Defines the core data structures used throughout the application.
+ */
+
+/**
  * @enum AlgorithmType
  * @brief Available register allocation algorithm variants.
  */
@@ -32,8 +37,8 @@ struct ProgramPoint {
  * @brief A single live range entry for a variable.
  */
 struct LiveRange {
-    std::string varName;
-    std::vector<ProgramPoint> points;
+    std::string varName;              ///< Name of the variable
+    std::vector<ProgramPoint> points; ///< Program points that make up the live range
 };
 
 /**
@@ -41,9 +46,9 @@ struct LiveRange {
  * @brief Configuration parsed from the register input file.
  */
 struct RegisterConfig {
-    int numRegisters;
-    AlgorithmType algorithm;
-    int algorithmParam;  ///< K for spilling/splitting, -1 otherwise
+    int numRegisters;           ///< Number of available physical registers
+    AlgorithmType algorithm;    ///< Selected register allocation algorithm variant
+    int algorithmParam;         ///< Parameter (e.g. max splits/spills), -1 otherwise
 };
 
 /**

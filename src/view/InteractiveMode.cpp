@@ -177,7 +177,8 @@ void doAllocate() {
         if (gAlloc.isFeasible()) {
             cout << "  Allocation SUCCESSFUL.\n";
         } else {
-            cout << "  Allocation INFEASIBLE.\n";
+            cout << "\n  *** ALLOCATION INFEASIBLE ***\n"
+                 << "  Not enough registers to allocate all webs.\n";
         }
         printAllocationSummary(gAlloc.getResult());
     } catch (const std::exception& e) {

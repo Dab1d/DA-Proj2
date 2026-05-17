@@ -29,7 +29,8 @@ bool BatchMode::run(const string& ranges, const string& registers, const string&
         ctrl.build(liveRanges, config);
         ctrl.run();
         if (!ctrl.isFeasible()) {
-            std::cerr << "Warning: The assignment to the provided number of registers was not possible." << std::endl;
+            std::cerr << "\n*** ALLOCATION INFEASIBLE ***\n"
+                      << "Not enough registers to allocate all webs.\n" << std::endl;
         }
         ctrl.writeOutput(allocation);
         return true;

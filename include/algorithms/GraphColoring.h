@@ -30,7 +30,7 @@
  * | basicAllocation     | T2.1  | Greedy / Chaitin reduction        |
  * | spillingAllocation  | T2.2  | Greedy + iterative web spilling   |
  * | splittingAllocation | T2.3  | Greedy + iterative web splitting  |
- * | freeAllocation      | T2.4  | DSatur saturation-degree ordering |
+ * | freeAllocation      | T2.4  | PASS (static degree + local recolour) |
  */
 class GraphColoring {
 public:

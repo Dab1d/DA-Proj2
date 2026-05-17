@@ -12,9 +12,7 @@ using std::set;
 using std::map;
 using std::stack;
 
-// ---------------------------------------------------------------------------
 // Internal helpers
-// ---------------------------------------------------------------------------
 
 // Compute active degree: number of neighbors that are still in activeNodes
 static int activeDegree(int node, const Graph<int>& g, const set<int>& active) {
@@ -128,9 +126,7 @@ static AllocationResult makeResult(const map<int,int>& reg, const vector<Web>& w
     return res;
 }
 
-// ---------------------------------------------------------------------------
 // T2.1 — Basic allocation
-// ---------------------------------------------------------------------------
 
 AllocationResult GraphColoring::basicAllocation(const Graph<int>& graph,
                                                  const vector<Web>& webs, int K) {
@@ -138,9 +134,7 @@ AllocationResult GraphColoring::basicAllocation(const Graph<int>& graph,
     return makeResult(reg, webs, K);
 }
 
-// ---------------------------------------------------------------------------
 // T2.2 — Spilling allocation
-// ---------------------------------------------------------------------------
 
 AllocationResult GraphColoring::spillingAllocation(const Graph<int>& graph,
                                                     const vector<Web>& webs,
@@ -190,9 +184,7 @@ AllocationResult GraphColoring::spillingAllocation(const Graph<int>& graph,
     return res;
 }
 
-// ---------------------------------------------------------------------------
 // T2.3 — Splitting allocation
-// ---------------------------------------------------------------------------
 
 AllocationResult GraphColoring::splittingAllocation(const Graph<int>& graph,
                                                       vector<Web>& webs,
@@ -292,9 +284,7 @@ AllocationResult GraphColoring::splittingAllocation(const Graph<int>& graph,
 AllocationResult GraphColoring::freeAllocation(const Graph<int>& graph,
                                                 const vector<Web>& webs, int K) {
 
-    // ------------------------------------------------------------------
-    // 1. Build degree table and sort webs by degree descending
-    // ------------------------------------------------------------------
+    // Build degree table and sort webs by degree descending
     map<int, int> degree;
     for (const auto& w : webs) {
         auto* v = graph.findVertex(w.id);
@@ -309,9 +299,7 @@ AllocationResult GraphColoring::freeAllocation(const Graph<int>& graph,
         return degree[a] > degree[b];   // descending degree
     });
 
-    // ------------------------------------------------------------------
-    // 2. Greedy colouring with local-recolour fallback
-    // ------------------------------------------------------------------
+    //  Greedy colouring with local-recolour fallback
     map<int, int> reg;   // web id -> colour (-1 = spilled, -2 = uncoloured)
     for (const auto& w : webs) reg[w.id] = -2;
 
@@ -341,15 +329,13 @@ AllocationResult GraphColoring::freeAllocation(const Graph<int>& graph,
             continue;
         }
 
-        // ------------------------------------------------------------------
-        // 3. Local recolour attempt
+        // Local recolour attempt
         //
         // For each already-coloured neighbour nb (colour = C):
         //   – collect colours used by nb's OWN neighbours (excluding `id`)
         //   – if nb can be moved to any colour c' in [0,K) not in that set,
         //     then colour C becomes free for `id`
         //   – accept the first such rescue found
-        // ------------------------------------------------------------------
         bool rescued = false;
 
         for (int nb : colouredNeighbours) {
@@ -397,9 +383,8 @@ AllocationResult GraphColoring::freeAllocation(const Graph<int>& graph,
         }
     }
 
-    // ------------------------------------------------------------------
-    // 4. Build AllocationResult
-    // ------------------------------------------------------------------
+    //build AllocationResult
+
     bool feasible = true;
     int  maxColor = -1;
 

@@ -272,24 +272,6 @@ bool Graph<T>::removeEdge(const T &sourc, const T &dest) {
 	return v1->removeEdgeTo(v2); //&& v2->removeEdgeFrom(v1);
 }
 
-/*
- * Auxiliary function to remove an incoming edge (with a given source (s))
- * from a vertex (this).
- * Returns true if successful, and false if such edge does not exist.
- */
-/*
-template <class T>
-bool Vertex<T>::removeEdgeFrom(Vertex<T> *d) {
-    auto inc = getIncoming();
-    for (auto it = inc.begin(); it != inc.end(); it++)
-        if (it->dest  == d) {
-            inc.erase(it);
-            return true;
-        }
-    return false;
-}
-*/
-
 
 /*
  * Auxiliary function to remove an outgoing edge (with a given destination (d))
